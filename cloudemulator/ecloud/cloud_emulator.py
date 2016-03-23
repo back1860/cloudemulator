@@ -22,12 +22,12 @@ class OperationName(object):
 
 
 class VirtualMachineStatus(object):
-    CREATING = "CREATING",
-    UNRESOLVED = "UNRESOLVED",
-    RESOLVED = "RESOLVED",
-    SUSPENDED = "SUSPENDED",
-    POWERED_ON = "POWERED_ON",
-    POWERED_OFF = "POWERED_OFF",
+    CREATING = "CREATING"
+    UNRESOLVED = "UNRESOLVED"
+    RESOLVED = "RESOLVED"
+    SUSPENDED = "SUSPENDED"
+    POWERED_ON = "POWERED_ON"
+    POWERED_OFF = "POWERED_OFF"
     NO_STATE = "NOSTATE"
 
 _task_queue_lock = threading.Lock()
@@ -107,19 +107,21 @@ class CloudManager(object):
         self._add_task(task)
         return task.id, vm_id
 
-    def power_on_virtual_machine(self, vm_name):
-        vm_id = self._get_vm_id_by_name(vm_name)
+    def power_on_virtual_machine(self, vm_id):
+        self.vm_room.get(vm_id).power_on()
         task = Task(OperationName.VAPP_UPDATE_VM)
+        self._add_task(task)
         return task.id, vm_id
 
-    def power_off_virtual_machine(self, vm_name):
-        vm_id = self._get_vm_id_by_name(vm_name)
+    def power_off_virtual_machine(self, vm_id):
+        self.vm_room.get(vm_id).power_off()
         task = Task(OperationName.VAPP_UPDATE_VM)
+        self._add_task(task)
         return task.id, vm_id
 
     def query_virtual_machine(self, vm_id):
         if vm_id in self.vm_room:
-            return copy.deepcopy(self.vm_room.get(id))
+            return copy.deepcopy(self.vm_room.get(vm_id))
         else:
             return None
 
@@ -127,25 +129,29 @@ class CloudManager(object):
         if page == 1:
             self._snapshot_vm_room()
 
-        total = len(self.vm_room) / pageSize + 1
+        total_vm = len(self.vm_room_snapshot)
+
+        total_page = (total_vm + pageSize - 1) / pageSize
 
         start_index = (page-1)*pageSize
-        if start_index >= len(self.vm_room_snapshot):
-            return total, -1, None
-
-        next_page = page + 1
         end_index = page*pageSize
-        if end_index > len(self.vm_room_snapshot):
+        next_page = page + 1
+
+        if start_index >= len(self.vm_room_snapshot):
+            return total_vm, total_page, -1, None
+
+        if end_index >= len(self.vm_room_snapshot):
             end_index = len(self.vm_room_snapshot)
             next_page = -1
 
-        return total, next_page, self.vm_room_snapshot[start_index: end_index]
+        return total_vm, total_page, next_page, self.vm_room_snapshot[start_index: end_index]
 
     def query_virtual_machines(self):
         return copy.deepcopy(self.vm_room.values())
 
     def query_task(self, task_id):
         _task_queue_lock.acquire()
+        task = None
         try:
             task = self.run_queue[task_id]
             task.update_task_status()
