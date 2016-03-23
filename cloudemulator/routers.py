@@ -11,8 +11,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from vcloud_emulator import wsgi
-from vcloud_emulator import vcloud_controller
+
+import wsgi
+import vcloud_controller
 
 
 class Router(wsgi.ComposableRouter):

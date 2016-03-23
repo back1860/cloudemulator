@@ -33,6 +33,6 @@ CONF.register_opts(opts)
 
 def parse_args(argv, default_config_files=None):
     CONF(argv[1:],
-         project='cloud-emulator',
+         project='cloudemulator',
          version=version.version_string(),
          default_config_files=default_config_files)

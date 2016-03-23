@@ -6,7 +6,7 @@ import time
 
 from oslo_config import cfg
 from common import log as logging
-from evcloud.task_manager import TaskManager, OperationName
+from ecloud.cloud_emulator import CloudManager, OperationName
 
 CONF = cfg.CONF
 
@@ -26,14 +26,12 @@ class VcloudController(wsgi.Application):
 
         time.sleep(REST_DELAY)
 
-        header_list = []
-        header_list.append(('Content-Type',
-                            'application/vnd.vmware.vcloud.session+xml;version=1.5'))
-        header_list.append(('Set-Cookie',
-                            'vcloud-token=D6R4x2b5PVTMW01b0AGJBCkT5/myTJAc6hc9zZ6LIO8=; Secure; Path=/'))
-        header_list.append(('Vary', 'Accept-Encoding'))
-        header_list.append(('x-vcloud-authorization',
-                            'D6R4x2b5PVTMW01b0AGJBCkT5/myTJAc6hc9zZ6LIO8='))
+        header_list = [('Content-Type',
+                        'application/vnd.vmware.vcloud.session+xml;version=1.5'),
+                       ('Set-Cookie',
+                        'vcloud-token=D6R4x2b5PVTMW01b0AGJBCkT5/myTJAc6hc9zZ6LIO8=; Secure; Path=/'),
+                       ('Vary', 'Accept-Encoding'), ('x-vcloud-authorization',
+                                                     'D6R4x2b5PVTMW01b0AGJBCkT5/myTJAc6hc9zZ6LIO8=')]
 
         body = '<?xml version="1.0" encoding="UTF-8"?>' \
                '<Session xmlns="http://www.vmware.com/vcloud/v1.5" user="huawei" org="emulator_org" ' \
@@ -54,12 +52,11 @@ class VcloudController(wsgi.Application):
 
         time.sleep(REST_DELAY)
 
-        header_list = []
-        header_list.append(('Content-Type',
-                            'application/vnd.vmware.vcloud.org+xml;version=1.5'))
-        header_list.append(('Set-Cookie',
-                            'vcloud-token=D6R4x2b5PVTMW01b0AGJBCkT5/myTJAc6hc9zZ6LIO8=; Secure; Path=/'))
-        header_list.append(('Vary', 'Accept-Encoding'))
+        header_list = [('Content-Type',
+                        'application/vnd.vmware.vcloud.org+xml;version=1.5'),
+                       ('Set-Cookie',
+                        'vcloud-token=D6R4x2b5PVTMW01b0AGJBCkT5/myTJAc6hc9zZ6LIO8=; Secure; Path=/'),
+                       ('Vary', 'Accept-Encoding')]
 
         body = '<?xml version="1.0" encoding="UTF-8"?>' \
                '<Org xmlns="http://www.vmware.com/vcloud/v1.5" name="emulator_org" id="urn:vcloud:org:379844e7-76e8-4966-821d-a73c083ea9db" type="application/vnd.vmware.vcloud.org+xml" href="http://162.3.201.10/api/org/379844e7-76e8-4966-821d-a73c083ea9db" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.vmware.com/vcloud/v1.5 http://162.3.201.10/api/v1.5/schema/master.xsd">' \
@@ -86,10 +83,16 @@ class VcloudController(wsgi.Application):
 
         time.sleep(REST_DELAY)
 
-        header_list = []
-        header_list.append(('Content-Type',
-                            'application/vnd.vmware.vcloud.vdc+xml;version=1.5'))
-        header_list.append(('Vary', 'Accept-Encoding'))
+        header_list = [('Content-Type',
+                        'application/vnd.vmware.vcloud.vdc+xml;version=1.5'),
+                       ('Vary', 'Accept-Encoding')]
+
+        tm = CloudManager()
+        vm_list = tm.query_virtual_machines()
+
+        vm_body = ""
+        for vm in vm_list:
+            vm_body = vm_body + '<ResourceEntity type="application/vnd.vmware.vcloud.vApp+xml" name="%s" href="http://162.3.201.10/api/vApp/vapp-%s"/>' % (vm.name, vm.id)
 
         body = '<?xml version="1.0" encoding="UTF-8"?>' \
                '<Vdc xmlns="http://www.vmware.com/vcloud/v1.5" status="1" name="emulator_vdc" id="urn:vcloud:vdc:61800c8d-89a4-4320-bbef-f57806b7064a" type="application/vnd.vmware.vcloud.vdc+xml" href="http://162.3.201.10/api/vdc/61800c8d-89a4-4320-bbef-f57806b7064a" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.vmware.com/vcloud/v1.5 http://162.3.201.10/api/v1.5/schema/master.xsd">' \
@@ -130,11 +133,9 @@ class VcloudController(wsgi.Application):
                '<ResourceEntity type="application/vnd.vmware.vcloud.vAppTemplate+xml" name="a19d92d7-4ed0-4c22-aba2-b45790d94e44" href="http://162.3.201.10/api/vAppTemplate/vappTemplate-bac0c657-e627-49df-a353-d94c85e980f6"/>' \
                '<ResourceEntity type="application/vnd.vmware.vcloud.vAppTemplate+xml" name="vcloud_vgw" href="http://162.3.201.10/api/vAppTemplate/vappTemplate-6e3469e9-e51f-45d2-9266-4a0068b349fd"/>' \
                '<ResourceEntity type="application/vnd.vmware.vcloud.vAppTemplate+xml" name="c9354b0c-e940-4f4c-af85-58370947ba7c" href="http://162.3.201.10/api/vAppTemplate/vappTemplate-37260524-953b-462b-a73f-c7e505bef43f"/>' \
-               '<ResourceEntity type="application/vnd.vmware.vcloud.vApp+xml" name="vcloud_vgw" href="http://162.3.201.10/api/vApp/vapp-0ab72801-e62e-4fd3-93a3-796f93fd4971"/>' \
-               '<ResourceEntity type="application/vnd.vmware.vcloud.vApp+xml" name="server@4dfb2c65-d88b-4f5d-be09-0e6e7b707959" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89"/>' \
                '<ResourceEntity type="application/vnd.vmware.vcloud.vAppTemplate+xml" name="5dedff0e-a8a5-44e4-b43d-52eb48abc9ce" href="http://162.3.201.10/api/vAppTemplate/vappTemplate-636bb448-207d-419e-997e-92b206791c0c"/>' \
                '<ResourceEntity type="application/vnd.vmware.vcloud.vAppTemplate+xml" name="2a156653-e613-460d-b0ed-ce5a95c194a2" href="http://162.3.201.10/api/vAppTemplate/vappTemplate-d8a637fb-47e5-4fab-9a67-7303ede5023b"/>' \
-               '<ResourceEntity type="application/vnd.vmware.vcloud.vApp+xml" name="OpenStack-AZ11" href="http://162.3.201.10/api/vApp/vapp-9b36a6f8-ef5e-40b3-9b83-d80e6ecf3528"/>' \
+               + vm_body + \
                '<ResourceEntity type="application/vnd.vmware.vcloud.media+xml" name="metadata_server@4dfb2c65-d88b-4f5d-be09-0e6e7b707959.iso" href="http://162.3.201.10/api/media/a7fa54df-b8d0-4770-8f72-1606c0b1b94b"/>' \
                '<ResourceEntity type="application/vnd.vmware.vcloud.media+xml" name="metadata_server@553c49c1-7a04-40b6-bb61-dfbd854751e5.iso" href="http://162.3.201.10/api/media/77a6ba18-e0ff-450a-92bb-7359c417ff8f"/>' \
                '<ResourceEntity type="application/vnd.vmware.vcloud.media+xml" name="metadata_server@48ddf85c-0d8d-49b9-b043-4d925c371500.iso" href="http://162.3.201.10/api/media/bf52ad5b-984b-4cd0-a894-22108969b864"/>' \
@@ -174,12 +175,10 @@ class VcloudController(wsgi.Application):
 
         time.sleep(REST_DELAY)
 
-        header_list = []
-        header_list.append(('Content-Type',
-                            'application/vnd.vmware.vcloud.catalog+xml;version=1.5'))
-        header_list.append(('Vary', 'Accept-Encoding'))
-        header_list.append(('x-vcloud-authorization',
-                            'D6R4x2b5PVTMW01b0AGJBCkT5/myTJAc6hc9zZ6LIO8='))
+        header_list = [('Content-Type',
+                        'application/vnd.vmware.vcloud.catalog+xml;version=1.5'),
+                       ('Vary', 'Accept-Encoding'), ('x-vcloud-authorization',
+                                                     'D6R4x2b5PVTMW01b0AGJBCkT5/myTJAc6hc9zZ6LIO8=')]
 
         if catalog_id == "80e2a4ba-c835-4c0f-9a67-6c7d06eac7d2":
             body = '<?xml version="1.0" encoding="UTF-8"?>' \
@@ -222,12 +221,10 @@ class VcloudController(wsgi.Application):
 
         time.sleep(REST_DELAY)
 
-        header_list = []
-        header_list.append(('Content-Type',
-                            'application/vnd.vmware.vcloud.catalogitem+xml;version=1.5'))
-        header_list.append(('Vary', 'Accept-Encoding'))
-        header_list.append(('x-vcloud-authorization',
-                            'D6R4x2b5PVTMW01b0AGJBCkT5/myTJAc6hc9zZ6LIO8='))
+        header_list = [('Content-Type',
+                        'application/vnd.vmware.vcloud.catalogitem+xml;version=1.5'),
+                       ('Vary', 'Accept-Encoding'), ('x-vcloud-authorization',
+                                                     'D6R4x2b5PVTMW01b0AGJBCkT5/myTJAc6hc9zZ6LIO8=')]
 
         if catalogItem_id == "36090b6b-48f0-46b5-997b-44ceab771d09":
             body = '<?xml version="1.0" encoding="UTF-8"?>' \
@@ -247,44 +244,48 @@ class VcloudController(wsgi.Application):
         return webob.Response(status_int=200, headerlist=header_list, body=body)
 
     def get_vapp(self, request, vapp_id):
-        LOG.info("get vapp, vapp id = %s", vapp_id)
+        LOG.info("get vapp, vapp_id = %s", vapp_id)
 
         time.sleep(CHECK_APP_DELAY)
 
-        header_list = []
-        header_list.append(('Content-Type',
-                            'application/vnd.vmware.vcloud.vApp+xml;version=1.5'))
-        header_list.append(('Vary', 'Accept-Encoding'))
+        header_list = [('Content-Type',
+                        'application/vnd.vmware.vcloud.vApp+xml;version=1.5'),
+                       ('Vary', 'Accept-Encoding')]
+
+        tm = CloudManager()
+        vm = tm.query_virtual_machine(vapp_id)
 
         body = '<?xml version="1.0" encoding="UTF-8"?>' \
-               '<VApp xmlns="http://www.vmware.com/vcloud/v1.5" xmlns:ovf="http://schemas.dmtf.org/ovf/envelope/1" xmlns:rasd="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_ResourceAllocationSettingData" xmlns:vssd="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_VirtualSystemSettingData" xmlns:vmw="http://www.vmware.com/schema/ovf" xmlns:ovfenv="http://schemas.dmtf.org/ovf/environment/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ovfDescriptorUploaded="true" deployed="true" status="4" name="server@4dfb2c65-d88b-4f5d-be09-0e6e7b707959" id="urn:vcloud:vapp:64265e94-5056-4704-b097-b4dfe9b50f89" type="application/vnd.vmware.vcloud.vApp+xml" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89" xsi:schemaLocation="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_VirtualSystemSettingData http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2.22.0/CIM_VirtualSystemSettingData.xsd http://www.vmware.com/schema/ovf http://www.vmware.com/schema/ovf http://schemas.dmtf.org/ovf/envelope/1 http://schemas.dmtf.org/ovf/envelope/1/dsp8023_1.1.0.xsd http://schemas.dmtf.org/ovf/environment/1 http://schemas.dmtf.org/ovf/envelope/1/dsp8027_1.1.0.xsd http://www.vmware.com/vcloud/v1.5 http://162.3.201.10/api/v1.5/schema/master.xsd http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_ResourceAllocationSettingData http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2.22.0/CIM_ResourceAllocationSettingData.xsd">' \
-               '<Link rel="power:powerOff" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89/power/action/powerOff"/>' \
-               '<Link rel="power:reboot" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89/power/action/reboot"/>' \
-               '<Link rel="power:reset" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89/power/action/reset"/>' \
-               '<Link rel="power:shutdown" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89/power/action/shutdown"/>' \
-               '<Link rel="power:suspend" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89/power/action/suspend"/>' \
-               '<Link rel="deploy" type="application/vnd.vmware.vcloud.deployVAppParams+xml" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89/action/deploy"/>' \
-               '<Link rel="undeploy" type="application/vnd.vmware.vcloud.undeployVAppParams+xml" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89/action/undeploy"/>' \
+               '<VApp xmlns="http://www.vmware.com/vcloud/v1.5" xmlns:ovf="http://schemas.dmtf.org/ovf/envelope/1" xmlns:rasd="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_ResourceAllocationSettingData" xmlns:vssd="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_VirtualSystemSettingData" xmlns:vmw="http://www.vmware.com/schema/ovf" xmlns:ovfenv="http://schemas.dmtf.org/ovf/environment/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ovfDescriptorUploaded="true" deployed="true" status="4" name="%(vm_name)s" id="urn:vcloud:vapp:%(vm_id)s" ' \
+               'type="application/vnd.vmware.vcloud.vApp+xml" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s" xsi:schemaLocation="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_VirtualSystemSettingData http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2.22.0/CIM_VirtualSystemSettingData.xsd http://www.vmware.com/schema/ovf http://www.vmware.com/schema/ovf http://schemas.dmtf.org/ovf/envelope/1 http://schemas.dmtf.org/ovf/envelope/1/dsp8023_1.1.0.xsd http://schemas.dmtf.org/ovf/environment/1 ' \
+               'http://schemas.dmtf.org/ovf/envelope/1/dsp8027_1.1.0.xsd http://www.vmware.com/vcloud/v1.5 http://162.3.201.10/api/v1.5/schema/master.xsd http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_ResourceAllocationSettingData http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2.22.0/CIM_ResourceAllocationSettingData.xsd">' \
+               '<Link rel="power:powerOff" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s/power/action/powerOff"/>' \
+               '<Link rel="power:reboot" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s/power/action/reboot"/>' \
+               '<Link rel="power:reset" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s/power/action/reset"/>' \
+               '<Link rel="power:shutdown" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s/power/action/shutdown"/>' \
+               '<Link rel="power:suspend" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s/power/action/suspend"/>' \
+               '<Link rel="deploy" type="application/vnd.vmware.vcloud.deployVAppParams+xml" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s/action/deploy"/>' \
+               '<Link rel="undeploy" type="application/vnd.vmware.vcloud.undeployVAppParams+xml" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s/action/undeploy"/>' \
                '<Link rel="down" type="application/vnd.vmware.vcloud.vAppNetwork+xml" name="internalbase-net" href="http://162.3.201.10/api/network/16e10581-c3a0-44cb-9e36-9a7432153071"/>' \
                '<Link rel="down" type="application/vnd.vmware.vcloud.vAppNetwork+xml" name="tunnelbearing-net" href="http://162.3.201.10/api/network/15b0d34c-7f46-42e2-9781-a9e276023447"/>' \
-               '<Link rel="down" type="application/vnd.vmware.vcloud.controlAccess+xml" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89/controlAccess/"/>' \
-               '<Link rel="controlAccess" type="application/vnd.vmware.vcloud.controlAccess+xml" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89/action/controlAccess"/>' \
+               '<Link rel="down" type="application/vnd.vmware.vcloud.controlAccess+xml" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s/controlAccess/"/>' \
+               '<Link rel="controlAccess" type="application/vnd.vmware.vcloud.controlAccess+xml" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s/action/controlAccess"/>' \
                '<Link rel="up" type="application/vnd.vmware.vcloud.vdc+xml" href="http://162.3.201.10/api/vdc/61800c8d-89a4-4320-bbef-f57806b7064a"/>' \
-               '<Link rel="edit" type="application/vnd.vmware.vcloud.vApp+xml" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89"/>' \
-               '<Link rel="down" type="application/vnd.vmware.vcloud.owner+xml" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89/owner"/>' \
-               '<Link rel="down" type="application/vnd.vmware.vcloud.metadata+xml" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89/metadata"/>' \
-               '<LeaseSettingsSection type="application/vnd.vmware.vcloud.leaseSettingsSection+xml" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89/leaseSettingsSection/" ovf:required="false">' \
+               '<Link rel="edit" type="application/vnd.vmware.vcloud.vApp+xml" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s"/>' \
+               '<Link rel="down" type="application/vnd.vmware.vcloud.owner+xml" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s/owner"/>' \
+               '<Link rel="down" type="application/vnd.vmware.vcloud.metadata+xml" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s/metadata"/>' \
+               '<LeaseSettingsSection type="application/vnd.vmware.vcloud.leaseSettingsSection+xml" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s/leaseSettingsSection/" ovf:required="false">' \
                '<ovf:Info>Lease settings section</ovf:Info>' \
-               '<Link rel="edit" type="application/vnd.vmware.vcloud.leaseSettingsSection+xml" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89/leaseSettingsSection/"/>' \
+               '<Link rel="edit" type="application/vnd.vmware.vcloud.leaseSettingsSection+xml" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s/leaseSettingsSection/"/>' \
                '<DeploymentLeaseInSeconds>0</DeploymentLeaseInSeconds>' \
                '<StorageLeaseInSeconds>0</StorageLeaseInSeconds>' \
                '</LeaseSettingsSection>' \
-               '<ovf:StartupSection xmlns:vcloud="http://www.vmware.com/vcloud/v1.5" vcloud:href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89/startupSection/" vcloud:type="application/vnd.vmware.vcloud.startupSection+xml">' \
+               '<ovf:StartupSection xmlns:vcloud="http://www.vmware.com/vcloud/v1.5" vcloud:href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s/startupSection/" vcloud:type="application/vnd.vmware.vcloud.startupSection+xml">' \
                '<ovf:Info>VApp startup section</ovf:Info>' \
                '<ovf:Item ovf:stopDelay="0" ovf:stopAction="powerOff" ovf:startDelay="0" ovf:startAction="powerOn" ovf:order="0" ovf:id="etherpad"/>' \
-               '<Link rel="edit" type="application/vnd.vmware.vcloud.startupSection+xml" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89/startupSection/"/>' \
+               '<Link rel="edit" type="application/vnd.vmware.vcloud.startupSection+xml" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s/startupSection/"/>' \
                '</ovf:StartupSection>' \
-               '<ovf:NetworkSection xmlns:vcloud="http://www.vmware.com/vcloud/v1.5" vcloud:href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89/networkSection/" vcloud:type="application/vnd.vmware.vcloud.networkSection+xml">' \
+               '<ovf:NetworkSection xmlns:vcloud="http://www.vmware.com/vcloud/v1.5" vcloud:href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s/networkSection/" vcloud:type="application/vnd.vmware.vcloud.networkSection+xml">' \
                '<ovf:Info>The list of logical networks</ovf:Info>' \
                '<ovf:Network ovf:name="internalbase-net">' \
                '<ovf:Description/>' \
@@ -293,9 +294,9 @@ class VcloudController(wsgi.Application):
                '<ovf:Description/>' \
                '</ovf:Network>' \
                '</ovf:NetworkSection>' \
-               '<NetworkConfigSection type="application/vnd.vmware.vcloud.networkConfigSection+xml" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89/networkConfigSection/" ovf:required="false">' \
+               '<NetworkConfigSection type="application/vnd.vmware.vcloud.networkConfigSection+xml" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s/networkConfigSection/" ovf:required="false">' \
                '<ovf:Info>The configuration parameters for logical networks</ovf:Info>' \
-               '<Link rel="edit" type="application/vnd.vmware.vcloud.networkConfigSection+xml" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89/networkConfigSection/"/>' \
+               '<Link rel="edit" type="application/vnd.vmware.vcloud.networkConfigSection+xml" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s/networkConfigSection/"/>' \
                '<NetworkConfig networkName="internalbase-net">' \
                '<Link rel="repair" href="http://162.3.201.10/api/admin/network/16e10581-c3a0-44cb-9e36-9a7432153071/action/reset"/>' \
                '<Description/>' \
@@ -358,7 +359,7 @@ class VcloudController(wsgi.Application):
                '<Link rel="media:insertMedia" type="application/vnd.vmware.vcloud.mediaInsertOrEjectParams+xml" href="http://162.3.201.10/api/vApp/vm-424ed08c-c811-407d-943a-795e23284e5f/media/action/insertMedia"/>' \
                '<Link rel="media:ejectMedia" type="application/vnd.vmware.vcloud.mediaInsertOrEjectParams+xml" href="http://162.3.201.10/api/vApp/vm-424ed08c-c811-407d-943a-795e23284e5f/media/action/ejectMedia"/>' \
                '<Link rel="installVmwareTools" href="http://162.3.201.10/api/vApp/vm-424ed08c-c811-407d-943a-795e23284e5f/action/installVMwareTools"/>' \
-               '<Link rel="up" type="application/vnd.vmware.vcloud.vApp+xml" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89"/>' \
+               '<Link rel="up" type="application/vnd.vmware.vcloud.vApp+xml" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s"/>' \
                '<ovf:VirtualHardwareSection xmlns:vcloud="http://www.vmware.com/vcloud/v1.5" ovf:transport="" vcloud:href="http://162.3.201.10/api/vApp/vm-424ed08c-c811-407d-943a-795e23284e5f/virtualHardwareSection/" vcloud:type="application/vnd.vmware.vcloud.virtualHardwareSection+xml">' \
                '<ovf:Info>Virtual hardware requirements</ovf:Info>' \
                '<ovf:System>' \
@@ -427,7 +428,7 @@ class VcloudController(wsgi.Application):
                '<rasd:AutomaticAllocation>true</rasd:AutomaticAllocation>' \
                '<rasd:Description>CD/DVD Drive</rasd:Description>' \
                '<rasd:ElementName>CD/DVD Drive 1</rasd:ElementName>' \
-               '<rasd:HostResource>metadata_server@4dfb2c65-d88b-4f5d-be09-0e6e7b707959.iso</rasd:HostResource>' \
+               '<rasd:HostResource>metadata_%(vm_name)s.iso</rasd:HostResource>' \
                '<rasd:InstanceID>3000</rasd:InstanceID>' \
                '<rasd:Parent>4</rasd:Parent>' \
                '<rasd:ResourceSubType>vmware.cdrom.iso</rasd:ResourceSubType>' \
@@ -525,22 +526,20 @@ class VcloudController(wsgi.Application):
                '</ovfenv:Environment>' \
                '</Vm>' \
                '</Children>' \
-               '</VApp>'
+               '</VApp>' % {"vm_id": vm.id, "vm_name": vm.name}
 
         return webob.Response(status_int=200, headerlist=header_list, body=body)
 
     def get_task(self, request, task_id):
-        tm = TaskManager()
-        task_status = tm.get_task_status(task_id)
+        tm = CloudManager()
+        task = tm.query_task(task_id)
 
-        LOG.info("get task, task_id = %s, task_status = %s", task_id, task_status)
+        LOG.info("get task, task_id = %s, task_status = %s", task_id, task.status)
 
         time.sleep(REST_DELAY)
 
-        header_list = []
-        header_list.append(('Content-Type',
-                            'application/vnd.vmware.vcloud.task+xml;version=5.5'))
-        header_list.append(('Vary', 'Accept-Encoding'))
+        header_list = [('Content-Type',
+                        'application/vnd.vmware.vcloud.task+xml;version=5.5'), ('Vary', 'Accept-Encoding')]
 
         body = '<?xml version="1.0" encoding="UTF-8"?>' \
                '<Task xmlns="http://www.vmware.com/vcloud/v1.5" status="%(task_status)s" startTime="2016-03-04T11:23:50.617+08:00" serviceNamespace="com.vmware.vcloud" operationName="vdcInstantiateVapp" operation="Created Virtual Application server@b1059e53-1fa7-4848-95a6-f214e7df5853(8b0d1e57-29a4-469a-9ffb-b985c9735199)" expiryTime="2016-06-02T11:23:50.617+08:00" endTime="2016-03-04T11:23:54.984+08:00" cancelRequested="false" name="task" id="urn:vcloud:task:%(task_id)s" type="application/vnd.vmware.vcloud.task+xml" href="http://162.3.201.10/api/task/%(task_id)s" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.vmware.com/vcloud/v1.5 http://162.3.201.10/api/v1.5/schema/master.xsd">' \
@@ -550,37 +549,36 @@ class VcloudController(wsgi.Application):
                '    <Progress>100</Progress>' \
                '    <Details/>' \
                '</Task>' % {"task_id": task_id,
-                            "task_status": task_status}
+                            "task_status": task.status}
 
         return webob.Response(status_int=200, headerlist=header_list, body=body)
 
-    def instantiate_VApp_Template(self, request, id):
-        LOG.info("instantiate_VApp_Template, vdc_id = %s", id)
+    def instantiate_VApp_Template(self, request, vdc_id, vapp_name):
+        LOG.info("instantiate_VApp_Template, vdc_id = %s, vapp_name = %s", vdc_id, vapp_name)
 
         time.sleep(REST_DELAY)
 
-        tm = TaskManager()
-        task_id = tm.add_task(OperationName.CREATE_VAPP)
+        tm = CloudManager()
+        task_id, vm_id = tm.create_virtual_machine(vapp_name)
 
-        header_list = []
-        header_list.append(('Content-Type',
-                            'application/vnd.vmware.vcloud.vapp+xml;version=5.5'))
-        header_list.append(('Vary', 'Accept-Encoding'))
+        header_list = [('Content-Type',
+                        'application/vnd.vmware.vcloud.vapp+xml;version=5.5'),
+                       ('Vary', 'Accept-Encoding')]
 
         body = '<?xml version="1.0" encoding="UTF-8"?>' \
-               '<VApp xmlns="http://www.vmware.com/vcloud/v1.5" ovfDescriptorUploaded="true" deployed="false" status="0" name="server@4dfb2c65-d88b-4f5d-be09-0e6e7b707959" id="urn:vcloud:vapp:64265e94-5056-4704-b097-b4dfe9b50f89" type="application/vnd.vmware.vcloud.vApp+xml" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.vmware.com/vcloud/v1.5 http://162.3.201.10/api/v1.5/schema/master.xsd">' \
+               '<VApp xmlns="http://www.vmware.com/vcloud/v1.5" ovfDescriptorUploaded="true" deployed="false" status="0" name="%(vm_name)s" id="urn:vcloud:vapp:%(vm_id)s" type="application/vnd.vmware.vcloud.vApp+xml" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.vmware.com/vcloud/v1.5 http://162.3.201.10/api/v1.5/schema/master.xsd">' \
                '    <Link rel="down" type="application/vnd.vmware.vcloud.vAppNetwork+xml" name="tunnelbearing-net" href="http://162.3.201.10/api/network/506102c5-ca6e-412c-9859-346dbdc2f7e8"/>' \
                '    <Link rel="down" type="application/vnd.vmware.vcloud.vAppNetwork+xml" name="internalbase-net" href="http://162.3.201.10/api/network/814cb1a9-e809-4d2c-a897-b42abae9c6fd"/>' \
-               '	<Link rel="down" type="application/vnd.vmware.vcloud.controlAccess+xml" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89/controlAccess/"/>' \
+               '	<Link rel="down" type="application/vnd.vmware.vcloud.controlAccess+xml" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s/controlAccess/"/>' \
                '	<Link rel="up" type="application/vnd.vmware.vcloud.vdc+xml" href="http://162.3.201.10/api/vdc/61800c8d-89a4-4320-bbef-f57806b7064a"/>' \
-               '	<Link rel="down" type="application/vnd.vmware.vcloud.owner+xml" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89/owner"/>' \
-               '	<Link rel="down" type="application/vnd.vmware.vcloud.metadata+xml" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89/metadata"/>' \
-               '	<Link rel="ovf" type="text/xml" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89/ovf"/>' \
-               '	<Link rel="down" type="application/vnd.vmware.vcloud.productSections+xml" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89/productSections/"/>' \
+               '	<Link rel="down" type="application/vnd.vmware.vcloud.owner+xml" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s/owner"/>' \
+               '	<Link rel="down" type="application/vnd.vmware.vcloud.metadata+xml" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s/metadata"/>' \
+               '	<Link rel="ovf" type="text/xml" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s/ovf"/>' \
+               '	<Link rel="down" type="application/vnd.vmware.vcloud.productSections+xml" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s/productSections/"/>' \
                '	<Tasks>' \
-               '	    <Task status="running" startTime="2016-03-04T11:23:50.617+08:00" serviceNamespace="com.vmware.vcloud" operationName="vdcInstantiateVapp" operation="Creating Virtual Application server@4dfb2c65-d88b-4f5d-be09-0e6e7b707959(64265e94-5056-4704-b097-b4dfe9b50f89)" expiryTime="2016-06-02T11:23:50.617+08:00" cancelRequested="false" name="task" id="urn:vcloud:task:%(task_id)s" type="application/vnd.vmware.vcloud.task+xml" href="http://162.3.201.10/api/task/%(task_id)s">' \
+               '	    <Task status="running" startTime="2016-03-04T11:23:50.617+08:00" serviceNamespace="com.vmware.vcloud" operationName="vdcInstantiateVapp" operation="Creating Virtual Application %(vm_name)s(%(vm_id)s)" expiryTime="2016-06-02T11:23:50.617+08:00" cancelRequested="false" name="task" id="urn:vcloud:task:%(task_id)s" type="application/vnd.vmware.vcloud.task+xml" href="http://162.3.201.10/api/task/%(task_id)s">' \
                '		    <Link rel="task:cancel" href="http://162.3.201.10/api/task/%(task_id)s/action/cancel"/>' \
-               '		    <Owner type="application/vnd.vmware.vcloud.vApp+xml" name="server@4dfb2c65-d88b-4f5d-be09-0e6e7b707959" href="http://162.3.201.10/api/vApp/vapp-64265e94-5056-4704-b097-b4dfe9b50f89"/>' \
+               '		    <Owner type="application/vnd.vmware.vcloud.vApp+xml" name="%(vm_name)s" href="http://162.3.201.10/api/vApp/vapp-%(vm_id)s"/>' \
                '		    <User type="application/vnd.vmware.admin.user+xml" name="huawei" href="http://162.3.201.10/api/admin/user/9ba4f68a-aac4-4bd8-b563-91b6728e94d0"/>' \
                '		    <Organization type="application/vnd.vmware.vcloud.org+xml" name="env130" href="http://162.3.201.10/api/org/379844e7-76e8-4966-821d-a73c083ea9db"/>' \
                '		    <Progress>1</Progress>' \
@@ -592,7 +590,7 @@ class VcloudController(wsgi.Application):
                '	    <User type="application/vnd.vmware.admin.user+xml" name="huawei" href="http://162.3.201.10/api/admin/user/9ba4f68a-aac4-4bd8-b563-91b6728e94d0"/>' \
                '	</Owner>' \
                '	<InMaintenanceMode>false</InMaintenanceMode>' \
-               '</VApp>' % {"task_id": task_id}
+               '</VApp>' % {"task_id": task_id, "vm_name": vapp_name, "vm_id": vm_id}
 
         return webob.Response(status_int=201, headerlist=header_list, body=body)
 
@@ -601,14 +599,13 @@ class VcloudController(wsgi.Application):
 
         time.sleep(REST_DELAY)
 
-        tm = TaskManager()
-        task_id = tm.add_task(OperationName.VAPP_UPDATE_VM)
+        tm = CloudManager()
+        task_id, vm_id = tm.update_virtual_machine(vapp_id)
         task_status = "running"
 
-        header_list = []
-        header_list.append(('Content-Type',
-                            'application/vnd.vmware.vcloud.task+xml;version=5.5'))
-        header_list.append(('Vary', 'Accept-Encoding'))
+        header_list = [('Content-Type',
+                        'application/vnd.vmware.vcloud.task+xml;version=5.5'),
+                       ('Vary', 'Accept-Encoding')]
 
         body = '<?xml version="1.0" encoding="UTF-8"?>' \
                '<Task xmlns="http://www.vmware.com/vcloud/v1.5" status="%(task_status)s" startTime="2016-03-06T16:33:57.959+08:00" serviceNamespace="com.vmware.vcloud" operationName="vappUpdateVm" operation="Updating Virtual Machine etherpad(d425f29a-c951-4b5e-a605-ee623bd2d33e)" expiryTime="2016-06-04T16:33:57.959+08:00" cancelRequested="false" name="task" id="urn:vcloud:task:%(task_id)s" type="application/vnd.vmware.vcloud.task+xml" href="http://162.3.201.10/api/task/%(task_id)s" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.vmware.com/vcloud/v1.5 http://162.3.201.10/api/v1.5/schema/master.xsd">' \
@@ -626,14 +623,13 @@ class VcloudController(wsgi.Application):
 
         time.sleep(REST_DELAY)
 
-        tm = TaskManager()
-        task_id = tm.add_task(OperationName.VAPP_UPDATE_VM)
+        tm = CloudManager()
+        task_id, vm_id = tm.update_virtual_machine(vapp_id)
         task_status = "running"
 
-        header_list = []
-        header_list.append(('Content-Type',
-                            'application/vnd.vmware.vcloud.task+xml;version=5.5'))
-        header_list.append(('Vary', 'Accept-Encoding'))
+        header_list = [('Content-Type',
+                        'application/vnd.vmware.vcloud.task+xml;version=5.5'),
+                       ('Vary', 'Accept-Encoding')]
 
         body = '<?xml version="1.0" encoding="UTF-8"?>' \
                '<Task xmlns="http://www.vmware.com/vcloud/v1.5" status="%(task_status)s" startTime="2016-03-06T16:33:57.959+08:00" serviceNamespace="com.vmware.vcloud" operationName="vappUpdateVm" operation="Updating Virtual Machine etherpad(d425f29a-c951-4b5e-a605-ee623bd2d33e)" expiryTime="2016-06-04T16:33:57.959+08:00" cancelRequested="false" name="task" id="urn:vcloud:task:%(task_id)s" type="application/vnd.vmware.vcloud.task+xml" href="http://162.3.201.10/api/task/%(task_id)s" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.vmware.com/vcloud/v1.5 http://162.3.201.10/api/v1.5/schema/master.xsd">' \
@@ -651,14 +647,13 @@ class VcloudController(wsgi.Application):
 
         time.sleep(REST_DELAY)
 
-        tm = TaskManager()
-        task_id = tm.add_task(OperationName.VAPP_UPDATE_VM)
+        tm = CloudManager()
+        task_id = tm.power_on_virtual_machine(vapp_id)
         task_status = "running"
 
-        header_list = []
-        header_list.append(('Content-Type',
-                            'application/vnd.vmware.vcloud.task+xml;version=5.5'))
-        header_list.append(('Vary', 'Accept-Encoding'))
+        header_list = [('Content-Type',
+                        'application/vnd.vmware.vcloud.task+xml;version=5.5'),
+                       ('Vary', 'Accept-Encoding')]
 
         body = '<?xml version="1.0" encoding="UTF-8"?>' \
                '<Task xmlns="http://www.vmware.com/vcloud/v1.5" status="%(task_status)s" startTime="2016-03-06T16:33:57.959+08:00" serviceNamespace="com.vmware.vcloud" operationName="vappUpdateVm" operation="Updating Virtual Machine etherpad(d425f29a-c951-4b5e-a605-ee623bd2d33e)" expiryTime="2016-06-04T16:33:57.959+08:00" cancelRequested="false" name="task" id="urn:vcloud:task:%(task_id)s" type="application/vnd.vmware.vcloud.task+xml" href="http://162.3.201.10/api/task/%(task_id)s" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.vmware.com/vcloud/v1.5 http://162.3.201.10/api/v1.5/schema/master.xsd">' \
@@ -676,14 +671,13 @@ class VcloudController(wsgi.Application):
 
         time.sleep(REST_DELAY)
 
-        tm = TaskManager()
-        task_id = tm.add_task(OperationName.VAPP_UPDATE_VM)
+        tm = CloudManager()
+        task_id, vm_id = tm.update_virtual_machine(vapp_id)
         task_status = "running"
 
-        header_list = []
-        header_list.append(('Content-Type',
-                            'application/vnd.vmware.vcloud.task+xml;version=5.5'))
-        header_list.append(('Vary', 'Accept-Encoding'))
+        header_list = [('Content-Type',
+                        'application/vnd.vmware.vcloud.task+xml;version=5.5'),
+                       ('Vary', 'Accept-Encoding')]
 
         body = '<?xml version="1.0" encoding="UTF-8"?>' \
                '<Task xmlns="http://www.vmware.com/vcloud/v1.5" status="%(task_status)s" startTime="2016-03-06T16:33:57.959+08:00" serviceNamespace="com.vmware.vcloud" operationName="vappUpdateVm" operation="Updating Virtual Machine etherpad(d425f29a-c951-4b5e-a605-ee623bd2d33e)" expiryTime="2016-06-04T16:33:57.959+08:00" cancelRequested="false" name="task" id="urn:vcloud:task:%(task_id)s" type="application/vnd.vmware.vcloud.task+xml" href="http://162.3.201.10/api/task/%(task_id)s" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.vmware.com/vcloud/v1.5 http://162.3.201.10/api/v1.5/schema/master.xsd">' \
@@ -701,14 +695,13 @@ class VcloudController(wsgi.Application):
 
         time.sleep(REST_DELAY)
 
-        tm = TaskManager()
-        task_id = tm.add_task(OperationName.VAPP_UPDATE_VM)
+        tm = CloudManager()
+        task_id = tm.update_virtual_machine(vapp_id)
         task_status = "running"
 
-        header_list = []
-        header_list.append(('Content-Type',
-                            'application/vnd.vmware.vcloud.task+xml;version=5.5'))
-        header_list.append(('Vary', 'Accept-Encoding'))
+        header_list = [('Content-Type',
+                        'application/vnd.vmware.vcloud.task+xml;version=5.5'),
+                       ('Vary', 'Accept-Encoding')]
 
         body = '<?xml version="1.0" encoding="UTF-8"?>' \
                '<Task xmlns="http://www.vmware.com/vcloud/v1.5" status="%(task_status)s" startTime="2016-03-06T16:33:57.959+08:00" serviceNamespace="com.vmware.vcloud" operationName="vappUpdateVm" operation="Updating Virtual Machine etherpad(d425f29a-c951-4b5e-a605-ee623bd2d33e)" expiryTime="2016-06-04T16:33:57.959+08:00" cancelRequested="false" name="task" id="urn:vcloud:task:%(task_id)s" type="application/vnd.vmware.vcloud.task+xml" href="http://162.3.201.10/api/task/%(task_id)s" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.vmware.com/vcloud/v1.5 http://162.3.201.10/api/v1.5/schema/master.xsd">' \
@@ -720,6 +713,52 @@ class VcloudController(wsgi.Application):
                '</Task>' % {"task_id": task_id,
                             "task_status": task_status}
         return webob.Response(status_int=202, headerlist=header_list, body=body)
+
+    def paged_query_vapp(self, request, page, pageSize):
+        LOG.info("paged query vapp, page = %s, pageSize = %s" % (page, pageSize))
+
+        time.sleep(REST_DELAY)
+
+        tm = CloudManager()
+        total, next_page, vm_list = tm.paged_query_virtual_machines(page=page, pageSize=pageSize)
+
+        header_list = [('Content-Type',
+                        'application/vnd.vmware.vcloud.query.records+xml;version=1.5'),
+                       ('Vary', 'Accept-Encoding')]
+
+        vm_page_body = ''
+        if vm_list:
+            for vm in vm_list:
+                vm_page_body += '<VAppRecord vdcName="vdc3" vdc="https://162.4.110.131/api/vdc/3fa5cdd5-8c3f-449f-a6bf-99202a548677" status="%(vm_status)s" ' \
+                                'ownerName="vdc3-user" name="%(vm_name)s" isPublic="false" isInMaintenanceMode="false" isExpired="false" isEnabled="true" ' \
+                                'isDeployed="true" isBusy="false" creationDate="2016-02-18T14:32:39.048+08:00" href="https://162.4.110.131/api/vApp/vapp-%(vm_id)s" ' \
+                                'cpuAllocationMhz="12" cpuAllocationInMhz="12000" ' \
+                                'task="https://162.4.110.131/api/task/ca757207-1b51-43ea-882d-4862940d8180" ' \
+                                'isAutoDeleteNotified="false" numberOfVMs="1" autoUndeployDate="2017-03-21T17:09:54.518+08:00" ' \
+                                'isAutoUndeployNotified="false" taskStatusName="vappDeploy" isVdcEnabled="true" ' \
+                                'honorBootOrder="true" pvdcHighestSupportedHardwareVersion="10" ' \
+                                'lowestHardwareVersionInVApp="8" taskStatus="success" storageKB="209715200" taskDetails=" " numberOfCpus="12" memoryAllocationMB="16384"/>' \
+                                % {"vm_name": vm.name, "vm_status": vm.status, "vm_id": vm.id}
+
+        body = '<?xml version="1.0" encoding="UTF-8"?> ' \
+               '<QueryResultRecords xmlns="http://www.vmware.com/vcloud/v1.5" total="%(total)s" pageSize="%(pageSize)s" page="%(page)s" ' \
+               'name="vApp" type="application/vnd.vmware.vcloud.query.records+xml" ' \
+               'href="https://162.4.110.131/api/query?type=vApp&amp;page=%(page)s&amp;pageSize=%(pageSize)s&amp;format=records" ' \
+               'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' \
+               'xsi:schemaLocation="http://www.vmware.com/vcloud/v1.5 http://162.4.110.131/api/v1.5/schema/master.xsd">' \
+               % {"total": total, "pageSize": pageSize, "page": page}
+
+        if next_page > 0:
+            body += '<Link rel="nextPage" type="application/vnd.vmware.vcloud.query.records+xml" href="https://162.4.110.131/api/query?type=vApp&amp;page=%(next)s&amp;pageSize=%(pageSize)s&amp;format=records"/>' \
+                    '<Link rel="lastPage" type="application/vnd.vmware.vcloud.query.records+xml" href="https://162.4.110.131/api/query?type=vApp&amp;page=%(total)s&amp;pageSize=%(pageSize)s&amp;format=records"/>' % {"next": next, "pageSize": pageSize}
+
+        body += '<Link rel="alternate" type="application/vnd.vmware.vcloud.query.references+xml" href="https://162.4.110.131/api/query?type=vApp&amp;page=1&amp;pageSize=%(pageSize)s&amp;format=references"/>' \
+                '<Link rel="alternate" type="application/vnd.vmware.vcloud.query.idrecords+xml" href="https://162.4.110.131/api/query?type=vApp&amp;page=1&amp;pageSize=%(pageSize)s&amp;format=idrecords"/>' % {"pageSize": pageSize}
+
+        body += vm_page_body
+        body += '</QueryResultRecords>'
+
+        return webob.Response(status_int=200, headerlist=header_list, body=body)
 
 
 def create_router(mapper):
@@ -744,7 +783,7 @@ def create_router(mapper):
                    controller=controller,
                    action='get_catalog_item',
                    conditions=dict(method=['GET']))
-    mapper.connect('/api/vdc/{id}/action/instantiateVAppTemplate',
+    mapper.connect('/api/vdc/{vdc_id}/action/instantiateVAppTemplate/{vapp_name}',
                    controller=controller,
                    action='instantiate_VApp_Template',
                    conditions=dict(method=['POST']))
@@ -776,6 +815,7 @@ def create_router(mapper):
                    controller=controller,
                    action='vapp_action',
                    conditions=dict(method=['POST']))
-
-
-
+    mapper.connect('/api/query?type=vApp&page={page}&pageSize={pageSize}&format=records',
+                   controller=controller,
+                   action='paged_query_vapp',
+                   conditions=dict(method=['POST']))

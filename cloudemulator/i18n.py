@@ -22,7 +22,7 @@ import oslo_i18n as i18n
  
 from common import gettextutils
 
-DOMAIN = 'cloud-emulator'
+DOMAIN = 'cloudemulator'
 
 _translators = i18n.TranslatorFactory(domain=DOMAIN)
 

@@ -92,7 +92,7 @@ def to_primitive(value, convert_instances=False, convert_datetime=True,
 
     """
     # handle obvious types first - order of basic types determined by running
-    # full tests on cloud-emulator project, resulting in the following counts:
+    # full tests on cloudemulator project, resulting in the following counts:
     # 572754 <type 'NoneType'>
     # 460353 <type 'int'>
     # 379632 <type 'unicode'>

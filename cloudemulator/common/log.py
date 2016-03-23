@@ -508,7 +508,7 @@ def _setup_logging_from_conf(project, version):
     if CONF.publish_errors:
         try:
             handler = importutils.import_object(
-                "cloud-emulator.common.log_handler.PublishErrorsHandler",
+                "cloudemulator.common.log_handler.PublishErrorsHandler",
                 logging.ERROR)
         except ImportError:
             handler = importutils.import_object(

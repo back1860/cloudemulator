@@ -37,15 +37,15 @@ import eventlet
 from eventlet import event
 from oslo_config import cfg
 
-from vcloud_emulator.common import eventlet_backdoor
-from vcloud_emulator.common.gettextutils import _LE, _LI, _LW
-from vcloud_emulator.common import importutils
-from vcloud_emulator.common import log as logging
-from vcloud_emulator.common import systemd
-from vcloud_emulator.common import threadgroup
+import eventlet_backdoor
+from gettextutils import _LE, _LI, _LW
+import importutils
+import log as logging
+import systemd
+import threadgroup
 
 
-rpc = importutils.try_import('cloud-emulator.common.rpc')
+rpc = importutils.try_import('cloudemulator.common.rpc')
 CONF = cfg.CONF
 LOG = logging.getLogger(__name__)
 

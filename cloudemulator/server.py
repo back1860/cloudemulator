@@ -7,7 +7,7 @@ import service
 
 def rest():
     config.parse_args(sys.argv)
-    logging.setup("cloud-emulator")
+    logging.setup("cloudemulator")
 
     launcher = service.process_launcher()
 

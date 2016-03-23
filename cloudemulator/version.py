@@ -13,7 +13,7 @@
 #    under the License.
 
 GW_VENDOR = "OpenStack Foundation"
-GW_PRODUCT = "OpenStack cloud-emulator"
+GW_PRODUCT = "OpenStack cloudemulator"
 GW_PACKAGE = None  # OS distro package version suffix
 
 loaded = False

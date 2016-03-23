@@ -15,7 +15,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""RequestContext: context for requests that persist through all of cloud-emulator."""
+"""RequestContext: context for requests that persist through all of cloudemulator."""
 
 import copy
 import uuid

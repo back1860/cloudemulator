@@ -24,13 +24,13 @@ path_opts = [
     cfg.StrOpt('pybasedir',
                default=os.path.abspath(os.path.join(os.path.dirname(__file__),
                                                     '../')),
-               help='Directory where the cloud-emulator python module is installed'),
+               help='Directory where the cloudemulator python module is installed'),
     cfg.StrOpt('bindir',
                default=os.path.join(sys.prefix, 'local', 'bin'),
-               help='Directory where cloud-emulator binaries are installed'),
+               help='Directory where cloudemulator binaries are installed'),
     cfg.StrOpt('state_path',
                default='$pybasedir',
-               help="Top-level directory for maintaining cloud-emulator's state"),
+               help="Top-level directory for maintaining cloudemulator's state"),
 ]
 
 CONF = cfg.CONF

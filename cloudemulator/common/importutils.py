@@ -59,7 +59,7 @@ def import_module(import_str):
 
 
 def import_versioned_module(version, submodule=None):
-    module = 'cloud-emulator.v%s' % version
+    module = 'cloudemulator.v%s' % version
     if submodule:
         module = '.'.join((module, submodule))
     return import_module(module)

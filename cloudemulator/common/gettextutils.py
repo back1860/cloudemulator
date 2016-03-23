@@ -19,7 +19,7 @@ gettext for openstack-common modules.
 
 Usual usage in an openstack.common module:
 
-    from cloud-emulator.common.gettextutils import _
+    from cloudemulator.common.gettextutils import _
 """
 
 import copy
