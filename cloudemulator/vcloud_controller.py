@@ -15,9 +15,9 @@ LOG = logging.getLogger(__name__)
 
 REST_DELAY = 0
 
-CHECK_APP_DELAY = 1
+CHECK_APP_DELAY = 0
 
-PAGED_QUERY_DELAY = 5
+PAGED_QUERY_DELAY = 1
 
 
 URL_HEADER = "http://162.3.200.16"
@@ -26,6 +26,16 @@ URL_HEADER = "http://162.3.200.16"
 class VcloudController(wsgi.Application):
     def __init__(self):
         super(VcloudController, self).__init__()
+
+    def save_manager(self, request):
+        LOG.info("save manager")
+        CloudManager().save()
+        return webob.Response(status_int=200)
+
+    def recover_manager(self, request):
+        LOG.info("recover manager")
+        CloudManager().recover()
+        return webob.Response(status_int=200)
 
     def get_sessions(self, request):
         LOG.info("get vcloud session.")
@@ -813,6 +823,14 @@ class VcloudController(wsgi.Application):
 
 def create_router(mapper):
     controller = VcloudController()
+    mapper.connect('/save',
+                   controller=controller,
+                   action='save_manager',
+                   conditions=dict(method=['POST']))
+    mapper.connect('/recover',
+                   controller=controller,
+                   action='recover_manager',
+                   conditions=dict(method=['POST']))
     mapper.connect('/api/sessions',
                    controller=controller,
                    action='get_sessions',

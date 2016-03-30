@@ -4,6 +4,7 @@ import time
 import uuid
 import threading
 import copy
+import json
 
 
 DEFAULT_COST = 0
@@ -70,10 +71,13 @@ class Task(object):
 
 
 class VirtualMachine(object):
-    def __init__(self, vm_name):
-        self.id = str(uuid.uuid1())
+    def __init__(self, vm_name, vm_id=None, status=VirtualMachineStatus.POWERED_ON):
+        if not vm_id:
+            self.id = str(uuid.uuid1())
+        else:
+            self.id = vm_id
         self.name = vm_name
-        self.status = VirtualMachineStatus.POWERED_ON
+        self.status = status
 
     def power_on(self):
         self.status = VirtualMachineStatus.POWERED_ON
@@ -82,12 +86,42 @@ class VirtualMachine(object):
         self.status = VirtualMachineStatus.POWERED_OFF
 
 
+def virtual_machine_2_dict(obj):
+    result = {}
+    result.update(obj.__dict__)
+    return result
+
+
+def dict_2_virtual_machine(dict):
+    vm = VirtualMachine(vm_name=dict["name"], vm_id=dict["id"], status=dict["status"])
+    return vm
+
+
+VM_DATA_FILE="/home/cloud/data/vm.dat"
+
 @singleton
 class CloudManager(object):
     def __init__(self):
         self.vm_room = {}
         self.run_queue = {}
         self.vm_room_snapshot = None
+
+    def save(self):
+        vm_dicts = []
+        for vm_id in self.vm_room:
+            vm_dict = virtual_machine_2_dict(self.vm_room.get(vm_id))
+            vm_dicts.append(vm_dict)
+
+        with open(VM_DATA_FILE, 'w+') as fd:
+            fd.write(json.dumps(vm_dicts, indent=4))
+
+    def recover(self):
+        with open(VM_DATA_FILE, 'r+') as fd:
+            vm_dicts = json.loads(fd.read())
+
+        for vm_dict in vm_dicts:
+            vm = dict_2_virtual_machine(vm_dict)
+            self._add_vm(vm)
 
     def create_virtual_machine(self, vm_name):
         task = Task(OperationName.CREATE_VAPP)
