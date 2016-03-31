@@ -22,6 +22,8 @@ PAGED_QUERY_DELAY = 1
 
 URL_HEADER = "http://162.3.200.16"
 
+IMAGE_ID = "2a156653-e613-460d-b0ed-ce5a95c194a2"
+
 
 class VcloudController(wsgi.Application):
     def __init__(self):
@@ -150,8 +152,8 @@ class VcloudController(wsgi.Application):
                '<ResourceEntity type="application/vnd.vmware.vcloud.vAppTemplate+xml" name="vcloud_vgw" href="%(url_header)s/api/vAppTemplate/vappTemplate-6e3469e9-e51f-45d2-9266-4a0068b349fd"/>' \
                '<ResourceEntity type="application/vnd.vmware.vcloud.vAppTemplate+xml" name="c9354b0c-e940-4f4c-af85-58370947ba7c" href="%(url_header)s/api/vAppTemplate/vappTemplate-37260524-953b-462b-a73f-c7e505bef43f"/>' \
                '<ResourceEntity type="application/vnd.vmware.vcloud.vAppTemplate+xml" name="5dedff0e-a8a5-44e4-b43d-52eb48abc9ce" href="%(url_header)s/api/vAppTemplate/vappTemplate-636bb448-207d-419e-997e-92b206791c0c"/>' \
-               '<ResourceEntity type="application/vnd.vmware.vcloud.vAppTemplate+xml" name="2a156653-e613-460d-b0ed-ce5a95c194a2" href="%(url_header)s/api/vAppTemplate/vappTemplate-d8a637fb-47e5-4fab-9a67-7303ede5023b"/>' \
-               % {"url_header": URL_HEADER} + vm_body + \
+               '<ResourceEntity type="application/vnd.vmware.vcloud.vAppTemplate+xml" name="%(image_id)s" href="%(url_header)s/api/vAppTemplate/vappTemplate-d8a637fb-47e5-4fab-9a67-7303ede5023b"/>' \
+               % {"url_header": URL_HEADER, "image_id": IMAGE_ID} + vm_body + \
                '<ResourceEntity type="application/vnd.vmware.vcloud.media+xml" name="metadata_server@4dfb2c65-d88b-4f5d-be09-0e6e7b707959.iso" href="%(url_header)s/api/media/a7fa54df-b8d0-4770-8f72-1606c0b1b94b"/>' \
                '<ResourceEntity type="application/vnd.vmware.vcloud.media+xml" name="metadata_server@553c49c1-7a04-40b6-bb61-dfbd854751e5.iso" href="%(url_header)s/api/media/77a6ba18-e0ff-450a-92bb-7359c417ff8f"/>' \
                '<ResourceEntity type="application/vnd.vmware.vcloud.media+xml" name="metadata_server@48ddf85c-0d8d-49b9-b043-4d925c371500.iso" href="%(url_header)s/api/media/bf52ad5b-984b-4cd0-a894-22108969b864"/>' \
@@ -224,11 +226,11 @@ class VcloudController(wsgi.Application):
                    '<CatalogItem type="application/vnd.vmware.vcloud.catalogItem+xml" name="a19d92d7-4ed0-4c22-aba2-b45790d94e44" id="bfaf8cc3-3dd6-4461-aa30-807cad380cff" href="%(url_header)s/api/catalogItem/bfaf8cc3-3dd6-4461-aa30-807cad380cff"/>' \
                    '<CatalogItem type="application/vnd.vmware.vcloud.catalogItem+xml" name="vcloud_vgw" id="5ed5800d-4a2a-42e9-91c5-77bab7dcd188" href="%(url_header)s/api/catalogItem/5ed5800d-4a2a-42e9-91c5-77bab7dcd188"/>' \
                    '<CatalogItem type="application/vnd.vmware.vcloud.catalogItem+xml" name="c9354b0c-e940-4f4c-af85-58370947ba7c" id="d9b439ac-7b6e-4c57-8576-5af29c4235ff" href="%(url_header)s/api/catalogItem/d9b439ac-7b6e-4c57-8576-5af29c4235ff"/>' \
-                   '<CatalogItem type="application/vnd.vmware.vcloud.catalogItem+xml" name="2a156653-e613-460d-b0ed-ce5a95c194a2" id="36090b6b-48f0-46b5-997b-44ceab771d09" href="%(url_header)s/api/catalogItem/36090b6b-48f0-46b5-997b-44ceab771d09"/>' \
+                   '<CatalogItem type="application/vnd.vmware.vcloud.catalogItem+xml" name="%(image_id)s" id="36090b6b-48f0-46b5-997b-44ceab771d09" href="%(url_header)s/api/catalogItem/36090b6b-48f0-46b5-997b-44ceab771d09"/>' \
                    '<CatalogItem type="application/vnd.vmware.vcloud.catalogItem+xml" name="5dedff0e-a8a5-44e4-b43d-52eb48abc9ce" id="f92f5853-ed37-4724-88a6-bdc97b437929" href="%(url_header)s/api/catalogItem/f92f5853-ed37-4724-88a6-bdc97b437929"/>' \
                    '</CatalogItems>' \
                    '<IsPublished>false</IsPublished>' \
-                   '</Catalog>' % {"url_header": URL_HEADER}
+                   '</Catalog>' % {"url_header": URL_HEADER, "image_id": IMAGE_ID}
 
         return webob.Response(status_int=200, headerlist=header_list, body=body)
 
@@ -244,11 +246,11 @@ class VcloudController(wsgi.Application):
 
         if catalogItem_id == "36090b6b-48f0-46b5-997b-44ceab771d09":
             body = '<?xml version="1.0" encoding="UTF-8"?>' \
-                   '<CatalogItem xmlns="http://www.vmware.com/vcloud/v1.5" size="0" name="2a156653-e613-460d-b0ed-ce5a95c194a2" id="urn:vcloud:catalogitem:36090b6b-48f0-46b5-997b-44ceab771d09" type="application/vnd.vmware.vcloud.catalogItem+xml" href="%(url_header)s/api/catalogItem/36090b6b-48f0-46b5-997b-44ceab771d09" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.vmware.com/vcloud/v1.5 %(url_header)s/api/v1.5/schema/master.xsd">' \
+                   '<CatalogItem xmlns="http://www.vmware.com/vcloud/v1.5" size="0" name="%(image_id)s" id="urn:vcloud:catalogitem:36090b6b-48f0-46b5-997b-44ceab771d09" type="application/vnd.vmware.vcloud.catalogItem+xml" href="%(url_header)s/api/catalogItem/36090b6b-48f0-46b5-997b-44ceab771d09" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.vmware.com/vcloud/v1.5 %(url_header)s/api/v1.5/schema/master.xsd">' \
                    '<Link rel="up" type="application/vnd.vmware.vcloud.catalog+xml" href="%(url_header)s/api/catalog/2359a9f8-d95a-4616-998a-18dad3711a24"/>' \
                    '<Link rel="down" type="application/vnd.vmware.vcloud.metadata+xml" href="%(url_header)s/api/catalogItem/36090b6b-48f0-46b5-997b-44ceab771d09/metadata"/>' \
-                   '<Entity type="application/vnd.vmware.vcloud.vAppTemplate+xml" name="2a156653-e613-460d-b0ed-ce5a95c194a2" href="%(url_header)s/api/vAppTemplate/vappTemplate-d8a637fb-47e5-4fab-9a67-7303ede5023b"/>' \
-                   '</CatalogItem>' % {"url_header": URL_HEADER}
+                   '<Entity type="application/vnd.vmware.vcloud.vAppTemplate+xml" name="%(image_id)s" href="%(url_header)s/api/vAppTemplate/vappTemplate-d8a637fb-47e5-4fab-9a67-7303ede5023b"/>' \
+                   '</CatalogItem>' % {"url_header": URL_HEADER, "image_id": IMAGE_ID}
         else:
             body = '<?xml version="1.0" encoding="UTF-8"?>' \
                    '<CatalogItem xmlns="http://www.vmware.com/vcloud/v1.5" size="358400" name="metadata_server@4dfb2c65-d88b-4f5d-be09-0e6e7b707959.iso" id="urn:vcloud:catalogitem:e2eaaf37-d2b1-4f91-a5b8-53bec07ae992" type="application/vnd.vmware.vcloud.catalogItem+xml" href="%(url_header)s/api/catalogItem/e2eaaf37-d2b1-4f91-a5b8-53bec07ae992" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.vmware.com/vcloud/v1.5 %(url_header)s/api/v1.5/schema/master.xsd">' \
